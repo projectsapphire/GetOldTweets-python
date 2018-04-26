@@ -19,10 +19,12 @@ def main(argv):
 		return
 
 	try:
-		opts, args = getopt.getopt(argv, "", ("username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
+		opts, args = getopt.getopt(argv, "", ("username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output=", "author_list_id="))
 
 		tweetCriteria = got.manager.TweetCriteria()
 		outputFileName = "output_got.csv"
+		outputFile = None
+		author_list_id = ""
 
 		for opt,arg in opts:
 			if opt == '--username':
@@ -54,6 +56,13 @@ def main(argv):
 
 			elif opt == '--output':
 				outputFileName = arg
+			
+			elif opt == '--author_list_id':
+				author_list_id = arg
+		
+		if author_list_id == "":
+			print("Please specify the author_list_id")
+			return
 				
 		outputFile = codecs.open(outputFileName, "w+", "utf-8")
 
@@ -82,7 +91,8 @@ def main(argv):
 					"favorite_count": t.favorites,
 					"user":{
 						"screen_name":t.username
-					}
+					},
+					"author_list_id": author_list_id
 				}
 				outputFile.write(json.dumps(twet, ensure_ascii=False) + ",")
 				# outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s;%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink, t.expanded_url)))
@@ -95,7 +105,8 @@ def main(argv):
 	except arg:
 		print('Arguments parser error, try -h' + arg)
 	finally:
-		outputFile.close()
+		if outputFile:
+			outputFile.close()
 		print('Done. Output file generated "%s".' % outputFileName)
 
 if __name__ == '__main__':
