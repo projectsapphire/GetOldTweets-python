@@ -35,7 +35,10 @@ class TweetManager:
 				break
 			
 			for tweetHTML in tweets:
+				# print("TweetHTML " + str(tweetHTML))
 				tweetPQ = PyQuery(tweetHTML)
+				# print("TweetPQ " + str(tweetPQ))
+				# print
 				tweet = models.Tweet()
 				
 				usernameTweet = tweetPQ("span:first.username.u-dir b").text()
@@ -45,6 +48,9 @@ class TweetManager:
 				dateSec = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
 				id = tweetPQ.attr("data-tweet-id")
 				permalink = tweetPQ.attr("data-permalink-path")
+				expanded_url = tweetPQ("div.js-tweet-text-container p a").attr("data-expanded-url")
+				url = tweetPQ("div.js-tweet-text-container p a").attr("href")
+				display_url = tweetPQ("div.js-tweet-text-container p a").attr("js-display-url")
 				
 				geo = ''
 				geoSpan = tweetPQ('span.Tweet-geo')
@@ -53,6 +59,9 @@ class TweetManager:
 				
 				tweet.id = id
 				tweet.permalink = 'https://twitter.com' + permalink
+				tweet.expanded_url = expanded_url
+				tweet.url = url
+				tweet.display_url = display_url
 				tweet.username = usernameTweet
 				tweet.text = txt
 				tweet.date = datetime.datetime.fromtimestamp(dateSec)
@@ -81,7 +90,7 @@ class TweetManager:
 	
 	@staticmethod
 	def getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy):
-		url = "https://twitter.com/i/search/timeline?f=tweets&q=%s&src=typd&max_position=%s"
+		url = "https://twitter.com/i/search/timeline?f=retweets&q=%s&src=typd&max_position=%s"
 		
 		urlGetData = ''
 		

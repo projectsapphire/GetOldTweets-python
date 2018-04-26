@@ -57,13 +57,36 @@ def main(argv):
 				
 		outputFile = codecs.open(outputFileName, "w+", "utf-8")
 
-		outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
+		# outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink;expanded_url')
 
 		print('Searching...\n')
 
 		def receiveBuffer(tweets):
+			import json
+			outputFile.write("[")
 			for t in tweets:
-				outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink)))
+				twet = {
+					"id"           : t.id,
+					"created_at"   : str(t.date.strftime("%Y-%m-%d %H:%M")),
+					"text"		   : t.text,
+					"entities"     : {
+						"urls":[
+							{
+								"url":t.url,
+								"expanded_url":t.expanded_url,
+								"display_url" : t.display_url
+							}
+						]
+					},
+					"retweet_count": t.retweets,
+					"favorite_count": t.favorites,
+					"user":{
+						"screen_name":t.username
+					}
+				}
+				outputFile.write(json.dumps(twet, ensure_ascii=False) + ",")
+				# outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s;%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink, t.expanded_url)))
+			outputFile.write("]")
 			outputFile.flush()
 			print('More %d saved on file...\n' % len(tweets))
 
